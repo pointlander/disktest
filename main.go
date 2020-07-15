@@ -52,6 +52,7 @@ func main() {
 		panic(err)
 	}
 	drop.Close()
+	time.Sleep(time.Second)
 
 	rand.Seed(1)
 	bytes := 0
