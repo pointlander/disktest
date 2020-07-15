@@ -24,7 +24,7 @@ func main() {
 	var data [8]byte
 	for i := 0; i < Gigabyte; i++ {
 		v, index := rand.Uint64(), 0
-		for j := 0; j < 64; j++ {
+		for j := 0; j < 64; j += 8 {
 			data[index] = byte(0xff & (v >> j))
 			index++
 		}
@@ -65,7 +65,7 @@ func main() {
 			panic(err)
 		}
 		v, index := rand.Uint64(), 0
-		for j := 0; j < 64; j++ {
+		for j := 0; j < 64; j += 8 {
 			if data[index] != byte(0xff&(v>>j)) {
 				bytes++
 			}
