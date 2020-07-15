@@ -17,6 +17,8 @@ const Gigabyte = 1024 * 1024 * 1024
 
 func main() {
 	rand.Seed(1)
+
+	fmt.Println("generating test.bin")
 	output, err := os.Create("test.bin")
 	if err != nil {
 		panic(err)
@@ -37,12 +39,15 @@ func main() {
 
 	// sync; echo 3 > /proc/sys/vm/drop_caches
 	for i := 0; i < 2; i++ {
+		fmt.Println("sync")
 		err := exec.Command("sync").Run()
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("sleep 1")
 		time.Sleep(time.Second)
 	}
+	fmt.Println("echo 3 > /proc/sys/vm/drop_caches")
 	drop, err := os.Open("/proc/sys/vm/drop_caches")
 	if err != nil {
 		panic(err)
@@ -52,9 +57,11 @@ func main() {
 		panic(err)
 	}
 	drop.Close()
+	fmt.Println("sleep 1")
 	time.Sleep(time.Second)
 
 	rand.Seed(1)
+	fmt.Println("verifying test.bin")
 	bytes := 0
 	input, err := os.Open("test.bin")
 	if err != nil {
