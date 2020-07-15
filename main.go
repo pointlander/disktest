@@ -18,24 +18,29 @@ const Gigabyte = 1024 * 1024 * 1024
 func main() {
 	rand.Seed(1)
 
-	fmt.Println("generating test.bin")
-	output, err := os.Create("test.bin")
+	_, err := os.Stat("test.bin")
 	if err != nil {
-		panic(err)
-	}
-	var data [8]byte
-	for i := 0; i < Gigabyte; i++ {
-		v, index := rand.Uint64(), 0
-		for j := 0; j < 64; j += 8 {
-			data[index] = byte(0xff & (v >> j))
-			index++
-		}
-		_, err := output.Write(data[:])
+		fmt.Println("generating test.bin")
+		output, err := os.Create("test.bin")
 		if err != nil {
 			panic(err)
 		}
+		var data [8]byte
+		for i := 0; i < Gigabyte; i++ {
+			v, index := rand.Uint64(), 0
+			for j := 0; j < 64; j += 8 {
+				data[index] = byte(0xff & (v >> j))
+				index++
+			}
+			_, err := output.Write(data[:])
+			if err != nil {
+				panic(err)
+			}
+		}
+		output.Close()
+	} else {
+		fmt.Println("found test.bin")
 	}
-	output.Close()
 
 	// sync; echo 3 > /proc/sys/vm/drop_caches
 	for i := 0; i < 2; i++ {
@@ -48,15 +53,10 @@ func main() {
 		time.Sleep(time.Second)
 	}
 	fmt.Println("echo 3 > /proc/sys/vm/drop_caches")
-	drop, err := os.Open("/proc/sys/vm/drop_caches")
+	err = exec.Command("sh", "-c", "/usr/bin/echo 3 > /proc/sys/vm/drop_caches").Run()
 	if err != nil {
 		panic(err)
 	}
-	_, err = drop.Write([]byte{'3'})
-	if err != nil {
-		panic(err)
-	}
-	drop.Close()
 	fmt.Println("sleep 1")
 	time.Sleep(time.Second)
 
@@ -67,6 +67,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	var data [8]byte
 	for i := 0; i < Gigabyte; i++ {
 		_, err := input.Read(data[:])
 		if err != nil {
